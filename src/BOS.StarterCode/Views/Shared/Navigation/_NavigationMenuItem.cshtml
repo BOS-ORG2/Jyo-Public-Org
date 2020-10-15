@@ -1,0 +1,32 @@
+﻿@model dynamic;
+@using BOS.StarterCode.Models.BOSModels;
+@inject Microsoft.AspNetCore.Http.IHttpContextAccessor HttpContextAccessor;
+@if (Model != null)
+{
+    Module moduleList = new Module();
+    moduleList.ChildComponents = Model;
+    @foreach (var module in moduleList.ChildComponents.OrderBy(x => x.Rank).ToList())
+    {
+        @if (module.ChildComponents.Count == 0)
+        {
+            if (@module.Code != "PRMNS")
+            {
+                <li class="nav-item dropdown@((Context.Request.Path.Value.Contains($"/{module.PagePath}")==true) ? " active":"")" id="@module.Id" parentmoduleid="@module.ParentId">
+                    <a asp-controller="Navigation" asp-action="NavigateToModule" asp-route-id="@module.Id" asp-route-code="@module.Code" asp-route-isdefault="@module.IsDefault" class="nav-link"><span>@module.Name</span></a>
+                </li>
+            }
+        }
+        else
+        {
+            <li class="nav-item dropdown@((Context.Request.Path.Value.Contains($"/{module.PagePath}")==true) ? " active":"")" id="@module.Id" parentmoduleid="@module.ParentId">
+                <a asp-controller="Navigation" asp-action="NavigateToModule" asp-route-id="@module.Id" asp-route-code="@module.Code" asp-route-isdefault="@module.IsDefault" class="nav-link has-dropdown"><i class="fas fa-fire"></i><span>@module.Name</span></a>
+                <ul class="dropdown-menu" id="@module.Id" parentmoduleid="@module.ParentId">
+                    @if (module.ChildComponents != null && module.ChildComponents.Count > 0)
+                    {
+                        <partial name="~/Views/Shared/Navigation/_NavigationMenuItem.cshtml" model="@module.ChildComponents" />
+                    }
+                </ul>
+            </li>
+        }
+    }
+}
